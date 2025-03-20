@@ -20,7 +20,7 @@ You can find the keys (JSX identifiers, `wrapper` and html tags) can be passed i
 
 **`recma-mdx-html-override`** focuses the `Literal` ones (the names that start with a lowercase or is not a valid JS identifier) to make them overridable via MDXComponents.
 
-Basically, **`recma-mdx-html-override`** changes the `Literal` parameters into **`_components.[literal]`** in the `jsx`/`jsxs` call expressions making approppriate changes in the compiled source; and ensures them overridable via components.
+Basically, **`recma-mdx-html-override`** changes the `Literal` parameters into **`_components.[literal]`** in the `jsx`/`jsxs` call expressions making approppriate changes in the compiled source; and ensures them overridable via mdx components.
 
 ## Installation
 
@@ -41,9 +41,9 @@ yarn add recma-mdx-html-override
 Say we have the following file, `example.mdx`,
 
 ```mdx
-# Hi {props.foo}
-      
-<Test name={props.baz} />
+# Hi
+
+<img src="image.png" alt="picture" />
 ```
 
 And our module, `example.js`, looks as follows:
@@ -51,7 +51,7 @@ And our module, `example.js`, looks as follows:
 ```javascript
 import { read } from "to-vfile";
 import { compile } from "@mdx-js/mdx";
-import recmaMdxChangeProps from "recma-mdx-html-override";
+import recmaMdxHtmlOverride from "recma-mdx-html-override";
 
 main();
 
@@ -59,7 +59,7 @@ async function main() {
   const source = await read("example.mdx");
 
   const compiledSource = await compile(source, {
-    recmaPlugins: [recmaMdxChangeProps],
+    recmaPlugins: [[recmaMdxHtmlOverride, {tags: "img"}]],
   });
 
   return String(compiledSource);
@@ -69,70 +69,45 @@ async function main() {
 Now, running `node example.js` produces the `compiled source` like below:
 
 ```js
-function _createMdxContent(_props) {
-  const _components = {
-    h1: "h1",
-    ..._props.components
-  }, {Test} = _components;
-  // ...
-  return _jsxs(_Fragment, {
-    children: [_jsxs(_components.h1, {
-      children: ["Hi ", props.foo]
-    }), "\\n", _jsx(Test, {
-      name: props.baz
-    })]
-  });
-}
-```
-
-And, this provides us to pass an object containing the `props` key during function construction of the compiled source.
-
-```js
-const scope = {
-  title: "My Article",
-  props: {
-    foo: "foofoo",
-    bar: "barbar",
-  }
-}
-``` 
-
-Without the `recma-mdx-html-override`, the statements `props.foo` and `props.baz` will be `undefined` during function construction.
-
-```js
 function _createMdxContent(props) {
   const _components = {
     h1: "h1",
++   img: "img",
     ...props.components
-  }, {Test} = _components;
-  // ...
+  };
   return _jsxs(_Fragment, {
-    children: [_jsxs(_components.h1, {
-      children: ["Hi ", props.foo]
-    }), "\\n", _jsx(Test, {
-      name: props.baz
+    children: [_jsx(_components.h1, {
+      children: "Hi"
+-   }), "\\n", _jsx("img", {
++   }), "\\n", _jsx(_components.img, {
+      src: "image.png",
+      alt: "picture"
     })]
   });
 }
 ```
 
+And, this provides us to override **`img`** components via mdx components `{ img: () => {/* */} }`
+
 ## Options
 
-All options are optional, and implemented as for being more flexible in case of need to change the names.
+There is one option, which is `undefined` by default.
 
 ```typescript
 export type HtmlOverrideOptions = {
-  funcName?: string; // default is "_createMdxContent" which the plugin looks for
-  propName?: string; // default is "props" which the plugin looks for
-  propAs?: string; // default is "_props" which the plugin converts into
+  tags?: string | string[]; // default is undefined
 };
 ```
 
-The options are self-explainotary, so that is why no need to represent more example here.
+### Tags
+
+It is a **`string | string[]`** option to set the tag names of html raw elements to be made overridable in MDX.
 
 ```javascript
-use(recmaMdxChangeProps, {propAs: "__props__"} as HtmlOverrideOptions);
+use(recmaMdxHtmlOverride, {tags: "video"} as HtmlOverrideOptions);
 ```
+
+Now, `<video />` html elements in MDX will be overridable via mdx components.
 
 ## Syntax tree
 
@@ -193,7 +168,7 @@ I like to contribute the Unified / Remark / MDX ecosystem, so I recommend you to
 - [`recma-mdx-import-react`](https://www.npmjs.com/package/recma-mdx-import-react)
   – Recma plugin to ensure getting `React` instance from the arguments and to make the runtime props `{React, jsx, jsxs, jsxDev, Fragment}` is available in the dynamically imported components in the compiled source of MDX.
 - [`recma-mdx-html-override`](https://www.npmjs.com/package/recma-mdx-html-override)
-  – Recma plugin to ensure selected html raw elements overridable via MDXComponents in MDX.
+  – Recma plugin to ensure selected html raw elements overridable via mdx components in MDX.
 
 ## License
 
@@ -220,7 +195,7 @@ I like to contribute the Unified / Remark / MDX ecosystem, so I recommend you to
 [badge-typescript]: https://img.shields.io/npm/types/recma-mdx-html-override
 [url-typescript]: https://www.typescriptlang.org/
 
-[badge-codecov]: https://codecov.io/gh/ipikuka/recma-mdx-html-override/graph/badge.svg?token=
+[badge-codecov]: https://codecov.io/gh/ipikuka/recma-mdx-html-override/graph/badge.svg?token=6UIKn4z8lc
 [url-codecov]: https://codecov.io/gh/ipikuka/recma-mdx-html-override
 
 [badge-type-coverage]: https://img.shields.io/badge/dynamic/json.svg?label=type-coverage&prefix=%E2%89%A5&suffix=%&query=$.typeCoverage.atLeast&uri=https%3A%2F%2Fraw.githubusercontent.com%2Fipikuka%2Frecma-mdx-html-override%2Fmaster%2Fpackage.json
