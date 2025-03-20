@@ -529,7 +529,7 @@ describe("recma-mdx-html-override, output is function-body, with plugin, jsx is 
   });
 
   // ******************************************
-  it.skip("with plugin, works with a not valid js identifier since it is compiled as literal", async () => {
+  it("with plugin, works with a not valid js identifier since it is compiled as literal", async () => {
     const source = dedent`    
       ![](image.png)
 
@@ -558,7 +558,7 @@ describe("recma-mdx-html-override, output is function-body, with plugin, jsx is 
           "not-valid-js-identifier-but-valid-jsx": "not-valid-js-identifier-but-valid-jsx",
           ...props.components
         };
-        return <><_components.p><_components.img src="image.png" alt="" /></_components.p>{"\\n"}<_components."not-valid-js-identifier-but-valid-jsx" /></>;
+        return <><_components.p><_components.img src="image.png" alt="" /></_components.p>{"\\n"}<_components.not-valid-js-identifier-but-valid-jsx /></>;
       }
       function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});

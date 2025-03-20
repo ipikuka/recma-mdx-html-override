@@ -1,6 +1,6 @@
 import type { Plugin } from "unified";
 import type { FunctionDeclaration, Node, Program, Property, VariableDeclarator } from "estree";
-import type { JSXIdentifier, JSXOpeningElement, JSXMemberExpression } from "estree-jsx";
+import type { JSXIdentifier, JSXOpeningElement } from "estree-jsx";
 import { CONTINUE, EXIT, SKIP, visit } from "estree-util-visit";
 
 export type HtmlOverrideOptions = {
@@ -109,15 +109,14 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
       if (node.type !== "JSXElement") return CONTINUE;
 
       // First child of a CallExpression is a Literal or Identifier to a reference
-      const openingElement = node.openingElement.name;
+      const openingElement: JSXOpeningElement = node.openingElement;
 
-      if (openingElement.type === "JSXIdentifier") {
-        const jsxIdentifier = openingElement;
+      if (openingElement.name.type === "JSXIdentifier") {
+        const jsxIdentifier: JSXIdentifier = openingElement.name;
 
         if (
-          typeof jsxIdentifier.name === "string" &&
-          ((typeof settings.tags === "string" && jsxIdentifier.name === settings.tags) ||
-            settings.tags.includes(jsxIdentifier.name))
+          (typeof settings.tags === "string" && jsxIdentifier.name === settings.tags) ||
+          settings.tags.includes(jsxIdentifier.name)
         ) {
           node.openingElement.name = {
             type: "JSXMemberExpression",
@@ -129,6 +128,7 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
               // name: containsHyphen(jsxIdentifier.name)
               //   ? '"' + jsxIdentifier.name + '"'
               //   : jsxIdentifier.name,
+              // computed: containsHyphen(jsxIdentifier.name) // proposal to "estree-jsx" for JSXMemberExpression
             },
           };
 

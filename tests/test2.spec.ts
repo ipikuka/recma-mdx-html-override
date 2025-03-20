@@ -3,7 +3,7 @@ import dedent from "dedent";
 
 import recmaMdxHtmlOverride, { type HtmlOverrideOptions } from "../src";
 
-describe("recma-mdx-html-override, output is program", () => {
+describe("recma-mdx-html-override, output is program, without plugin", () => {
   // ******************************************
   it("without plugin, only html raw element", async () => {
     const source = dedent`
@@ -155,7 +155,7 @@ describe("recma-mdx-html-override, output is program", () => {
   });
 });
 
-describe("recma-mdx-html-override, output is program", () => {
+describe("recma-mdx-html-override, output is program, with plugin", () => {
   // ******************************************
   it("with plugin, it should be effectless without option", async () => {
     const source = dedent`
