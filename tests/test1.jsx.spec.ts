@@ -547,6 +547,8 @@ describe("recma-mdx-html-override, output is function-body, with plugin, jsx is 
       ],
     });
 
+    // TODO: convert <_components.not-valid-js-identifier-but-valid-jsx />
+    // to <_components["not-valid-js-identifier-but-valid-jsx"] />
     expect(String(compiledSource)).toMatchInlineSnapshot(`
       "/*@jsxRuntime automatic*/
       /*@jsxImportSource react*/

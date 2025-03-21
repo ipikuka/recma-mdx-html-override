@@ -8,19 +8,19 @@
 [![typescript][badge-typescript]][url-typescript]
 [![license][badge-license]][url-license]
 
-This package is a **[unified][unified]** (**[recma][recma]**) plugin **that ensures selected html raw elements overridable via MDXComponents in MDX**.
+This package is a **[unified][unified]** (**[recma][recma]**) plugin **that allows selected raw HTML elements to be overridden via MDX components**.
 
 **[unified][unified]** is a project that transforms content with abstract syntax trees (ASTs) using the new parser **[micromark][micromark]**. **[recma][recma]** adds support for producing a javascript code by transforming **[esast][esast]** which stands for Ecma Script Abstract Syntax Tree (AST) that is used in production of compiled source for the **[MDX][MDX]**.
 
 ## When should I use this?
 
-**Use this plugin to be able to override selected html raw elements via MDXComponents**.
+**Use this plugin when you need to override specific raw HTML elements in MDX using `MDXComponents`**.
 
-You can find the keys (JSX identifiers, `wrapper` and html tags) can be passed in MDXComponents and the rules whether a key is a `Literal` or a `Reference to an Identifier` in [@mdx-js/mdx docs](https://mdxjs.com/docs/using-mdx/#components).
+You can find information about valid JSX identifiers (identifiers, `wrapper` and html tags) that can be passed into MDXComponents and whether they are `Literals` or a `References to an Identifier` in [@mdx-js/mdx documentation](https://mdxjs.com/docs/using-mdx/#components).
 
-**`recma-mdx-html-override`** focuses the `Literal` ones (the names that start with a lowercase or is not a valid JS identifier) to make them overridable via MDXComponents.
+**`recma-mdx-html-override`** focuses on `Literal` ones (those starting with lowercase letters or/and contains hypen) to make them overridable via MDXComponents.
 
-Basically, **`recma-mdx-html-override`** changes the `Literal` parameters into **`_components.[literal]`** in the `jsx`/`jsxs` call expressions making approppriate changes in the compiled source; and ensures them overridable via mdx components.
+Basically, **`recma-mdx-html-override`** modifies `Literal` parameters in the `jsx`/`jsxs` call expressions by converting them to **`_components.[literal]`**, ensuring they can be overridden.
 
 ## Installation
 
@@ -68,7 +68,7 @@ async function main() {
 
 Now, running `node example.js` produces the `compiled source` like below:
 
-```js
+```diff
 function _createMdxContent(props) {
   const _components = {
     h1: "h1",
@@ -87,11 +87,11 @@ function _createMdxContent(props) {
 }
 ```
 
-And, this provides us to override **`img`** components via mdx components `{ img: () => {/* */} }`
+This allows the `img` component to be overridden via MDX components: `{ img: (props) => {/* custom rendering */} }`.
 
 ## Options
 
-There is one option, which is `undefined` by default.
+There is one option.
 
 ```typescript
 export type HtmlOverrideOptions = {
@@ -101,17 +101,17 @@ export type HtmlOverrideOptions = {
 
 ### Tags
 
-It is a **`string | string[]`** option to set the tag names of html raw elements to be made overridable in MDX.
+It is a **`string | string[]`** option to specify which HTML elements should be made overridable in MDX.
 
 ```javascript
 use(recmaMdxHtmlOverride, {tags: "video"} as HtmlOverrideOptions);
 ```
 
-Now, `<video />` html elements in MDX will be overridable via mdx components.
+This makes `<video />` elements overridable via MDX components.
 
 ## Syntax tree
 
-This plugin only modifies the ESAST (Ecma Script Abstract Syntax Tree) as explained.
+This plugin modifies only the ESAST (EcmaScript Abstract Syntax Tree) as explained.
 
 ## Types
 
@@ -168,7 +168,7 @@ I like to contribute the Unified / Remark / MDX ecosystem, so I recommend you to
 - [`recma-mdx-import-react`](https://www.npmjs.com/package/recma-mdx-import-react)
   – Recma plugin to ensure getting `React` instance from the arguments and to make the runtime props `{React, jsx, jsxs, jsxDev, Fragment}` is available in the dynamically imported components in the compiled source of MDX.
 - [`recma-mdx-html-override`](https://www.npmjs.com/package/recma-mdx-html-override)
-  – Recma plugin to ensure selected html raw elements overridable via mdx components in MDX.
+  – Recma plugin to allow selected raw HTML elements to be overridden via MDX components.
 
 ## License
 
