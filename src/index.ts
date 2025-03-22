@@ -86,12 +86,9 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
         node.arguments[0] = {
           type: "MemberExpression",
           object: { type: "Identifier", name: "_components" },
-          property: {
-            type: "Identifier",
-            name: containsHyphen(firstArgument.value)
-              ? '"' + firstArgument.value + '"'
-              : firstArgument.value,
-          },
+          property: containsHyphen(firstArgument.value)
+            ? { type: "Literal", value: firstArgument.value }
+            : { type: "Identifier", name: firstArgument.value },
           computed: containsHyphen(firstArgument.value),
           optional: false,
         };
@@ -121,15 +118,11 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
           node.openingElement.name = {
             type: "JSXMemberExpression",
             object: { type: "JSXIdentifier", name: "_components" },
-            property: {
-              type: "JSXIdentifier",
-              name: jsxIdentifier.name,
-              // TODO: fix <_components["hypened-name"]></>
-              // name: containsHyphen(jsxIdentifier.name)
-              //   ? '"' + jsxIdentifier.name + '"'
-              //   : jsxIdentifier.name,
-              // computed: containsHyphen(jsxIdentifier.name) // proposal to "estree-jsx" for JSXMemberExpression
-            },
+            property: { type: "JSXIdentifier", name: jsxIdentifier.name },
+            // A proposal in https://github.com/facebook/jsx/issues/163
+            // property: containsHyphen(jsxIdentifier.name)
+            //   ? { type: "Literal", value: jsxIdentifier.name, computed: true }
+            //   : { type: "JSXIdentifier", name: jsxIdentifier.name },
           };
 
           if (!componentMap[jsxIdentifier.name]) {
@@ -215,7 +208,9 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
                   ({
                     type: "Property",
                     kind: "init",
-                    key: { type: "Identifier", name: key },
+                    key: containsHyphen(key)
+                      ? { type: "Literal", value: key }
+                      : { type: "Identifier", name: key },
                     value: { type: "Literal", value },
                     method: false,
                     shorthand: false,
