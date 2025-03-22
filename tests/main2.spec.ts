@@ -4,9 +4,11 @@ import dedent from "dedent";
 
 import recmaMdxHtmlOverride, { type HtmlOverrideOptions } from "../src";
 
-describe("recma-mdx-html-override, output is function-body", () => {
+describe("recma-mdx-html-override, output is program", () => {
   const source = dedent`
     <a></a>
+    <a-b></a-b>
+    <a-b-c></a-b-c>
     <a-b></a-b>
     <a-b-c></a-b-c>
   `;
@@ -14,18 +16,17 @@ describe("recma-mdx-html-override, output is function-body", () => {
   // ******************************************
   it("without plugin, only html raw elements, format mdx", async () => {
     const compiledSource = await compile(source, {
-      outputFormat: "function-body",
+      outputFormat: "program",
     });
 
     expect(String(compiledSource)).toMatchInlineSnapshot(`
-      ""use strict";
-      const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+      "import {Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs} from "react/jsx-runtime";
       function _createMdxContent(props) {
         return _jsxs(_Fragment, {
-          children: [_jsx("a", {}), "\\n", _jsx("a-b", {}), "\\n", _jsx("a-b-c", {})]
+          children: [_jsx("a", {}), "\\n", _jsx("a-b", {}), "\\n", _jsx("a-b-c", {}), "\\n", _jsx("a-b", {}), "\\n", _jsx("a-b-c", {})]
         });
       }
-      function MDXContent(props = {}) {
+      export default function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});
         return MDXLayout ? _jsx(MDXLayout, {
           ...props,
@@ -34,9 +35,6 @@ describe("recma-mdx-html-override, output is function-body", () => {
           })
         }) : _createMdxContent(props);
       }
-      return {
-        default: MDXContent
-      };
       "
     `);
   });
@@ -44,15 +42,14 @@ describe("recma-mdx-html-override, output is function-body", () => {
   // ******************************************
   it("with plugin, only html raw elements, format mdx", async () => {
     const compiledSource = await compile(source, {
-      outputFormat: "function-body",
+      outputFormat: "program",
       recmaPlugins: [
         [recmaMdxHtmlOverride, { tags: ["a", "a-b", "a-b-c"] } as HtmlOverrideOptions],
       ],
     });
 
     expect(String(compiledSource)).toMatchInlineSnapshot(`
-      ""use strict";
-      const {Fragment: _Fragment, jsx: _jsx, jsxs: _jsxs} = arguments[0];
+      "import {Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs} from "react/jsx-runtime";
       function _createMdxContent(props) {
         const _components = {
           a: "a",
@@ -61,10 +58,10 @@ describe("recma-mdx-html-override, output is function-body", () => {
           ...props.components
         };
         return _jsxs(_Fragment, {
-          children: [_jsx(_components.a, {}), "\\n", _jsx(_components["a-b"], {}), "\\n", _jsx(_components["a-b-c"], {})]
+          children: [_jsx(_components.a, {}), "\\n", _jsx(_components["a-b"], {}), "\\n", _jsx(_components["a-b-c"], {}), "\\n", _jsx(_components["a-b"], {}), "\\n", _jsx(_components["a-b-c"], {})]
         });
       }
-      function MDXContent(props = {}) {
+      export default function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});
         return MDXLayout ? _jsx(MDXLayout, {
           ...props,
@@ -73,9 +70,6 @@ describe("recma-mdx-html-override, output is function-body", () => {
           })
         }) : _createMdxContent(props);
       }
-      return {
-        default: MDXContent
-      };
       "
     `);
   });
@@ -84,13 +78,12 @@ describe("recma-mdx-html-override, output is function-body", () => {
   it("without plugin, only html raw elements, format md", async () => {
     const compiledSource = await compile(source, {
       format: "md",
-      outputFormat: "function-body",
+      outputFormat: "program",
       rehypePlugins: [rehypeRaw],
     });
 
     expect(String(compiledSource)).toMatchInlineSnapshot(`
-      ""use strict";
-      const {jsx: _jsx, jsxs: _jsxs} = arguments[0];
+      "import {jsx as _jsx, jsxs as _jsxs} from "react/jsx-runtime";
       function _createMdxContent(props) {
         const _components = {
           a: "a",
@@ -100,10 +93,10 @@ describe("recma-mdx-html-override, output is function-body", () => {
           ...props.components
         }, _component0 = _components["a-b"], _component1 = _components["a-b-c"];
         return _jsxs(_components.p, {
-          children: [_jsx(_components.a, {}), "\\n", _jsx(_component0, {}), "\\n", _jsx(_component1, {})]
+          children: [_jsx(_components.a, {}), "\\n", _jsx(_component0, {}), "\\n", _jsx(_component1, {}), "\\n", _jsx(_component0, {}), "\\n", _jsx(_component1, {})]
         });
       }
-      function MDXContent(props = {}) {
+      export default function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});
         return MDXLayout ? _jsx(MDXLayout, {
           ...props,
@@ -112,9 +105,6 @@ describe("recma-mdx-html-override, output is function-body", () => {
           })
         }) : _createMdxContent(props);
       }
-      return {
-        default: MDXContent
-      };
       "
     `);
   });
@@ -123,7 +113,7 @@ describe("recma-mdx-html-override, output is function-body", () => {
   it("with plugin, only html raw elements, format md", async () => {
     const compiledSource = await compile(source, {
       format: "md",
-      outputFormat: "function-body",
+      outputFormat: "program",
       rehypePlugins: [rehypeRaw],
       recmaPlugins: [
         [recmaMdxHtmlOverride, { tags: ["a", "a-b", "a-b-c"] } as HtmlOverrideOptions],
@@ -131,8 +121,7 @@ describe("recma-mdx-html-override, output is function-body", () => {
     });
 
     expect(String(compiledSource)).toMatchInlineSnapshot(`
-      ""use strict";
-      const {jsx: _jsx, jsxs: _jsxs} = arguments[0];
+      "import {jsx as _jsx, jsxs as _jsxs} from "react/jsx-runtime";
       function _createMdxContent(props) {
         const _components = {
           a: "a",
@@ -142,10 +131,10 @@ describe("recma-mdx-html-override, output is function-body", () => {
           ...props.components
         }, _component0 = _components["a-b"], _component1 = _components["a-b-c"];
         return _jsxs(_components.p, {
-          children: [_jsx(_components.a, {}), "\\n", _jsx(_component0, {}), "\\n", _jsx(_component1, {})]
+          children: [_jsx(_components.a, {}), "\\n", _jsx(_component0, {}), "\\n", _jsx(_component1, {}), "\\n", _jsx(_component0, {}), "\\n", _jsx(_component1, {})]
         });
       }
-      function MDXContent(props = {}) {
+      export default function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});
         return MDXLayout ? _jsx(MDXLayout, {
           ...props,
@@ -154,17 +143,16 @@ describe("recma-mdx-html-override, output is function-body", () => {
           })
         }) : _createMdxContent(props);
       }
-      return {
-        default: MDXContent
-      };
       "
     `);
   });
 });
 
-describe("recma-mdx-html-override, output is function-body, jsx is true", () => {
+describe("recma-mdx-html-override, output is program, jsx is true", () => {
   const source = dedent`
     <a></a>
+    <a-b></a-b>
+    <a-b-c></a-b-c>
     <a-b></a-b>
     <a-b-c></a-b-c>
   `;
@@ -172,33 +160,28 @@ describe("recma-mdx-html-override, output is function-body, jsx is true", () => 
   // ******************************************
   it("without plugin, only html raw elements, format mdx, jsx true", async () => {
     const compiledSource = await compile(source, {
-      outputFormat: "function-body",
+      outputFormat: "program",
       jsx: true,
     });
 
     expect(String(compiledSource)).toMatchInlineSnapshot(`
       "/*@jsxRuntime automatic*/
       /*@jsxImportSource react*/
-      "use strict";
       function _createMdxContent(props) {
-        return <><a />{"\\n"}<a-b />{"\\n"}<a-b-c /></>;
+        return <><a />{"\\n"}<a-b />{"\\n"}<a-b-c />{"\\n"}<a-b />{"\\n"}<a-b-c /></>;
       }
-      function MDXContent(props = {}) {
+      export default function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});
         return MDXLayout ? <MDXLayout {...props}><_createMdxContent {...props} /></MDXLayout> : _createMdxContent(props);
       }
-      return {
-        default: MDXContent
-      };
       "
     `);
   });
 
-  // TODO: fix `_components.a-b` and `_components.a-b-c`
   // ******************************************
   it("with plugin, only html raw elements, format mdx, jsx true", async () => {
     const compiledSource = await compile(source, {
-      outputFormat: "function-body",
+      outputFormat: "program",
       jsx: true,
       recmaPlugins: [
         [recmaMdxHtmlOverride, { tags: ["a", "a-b", "a-b-c"] } as HtmlOverrideOptions],
@@ -208,23 +191,19 @@ describe("recma-mdx-html-override, output is function-body, jsx is true", () => 
     expect(String(compiledSource)).toMatchInlineSnapshot(`
       "/*@jsxRuntime automatic*/
       /*@jsxImportSource react*/
-      "use strict";
       function _createMdxContent(props) {
         const _components = {
           a: "a",
           "a-b": "a-b",
           "a-b-c": "a-b-c",
           ...props.components
-        };
-        return <><_components.a />{"\\n"}<_components.a-b />{"\\n"}<_components.a-b-c /></>;
+        }, _mdxcomponent0 = _components["a-b"], _mdxcomponent1 = _components["a-b-c"];
+        return <><_components.a />{"\\n"}<_mdxcomponent0 />{"\\n"}<_mdxcomponent1 />{"\\n"}<_mdxcomponent0 />{"\\n"}<_mdxcomponent1 /></>;
       }
-      function MDXContent(props = {}) {
+      export default function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});
         return MDXLayout ? <MDXLayout {...props}><_createMdxContent {...props} /></MDXLayout> : _createMdxContent(props);
       }
-      return {
-        default: MDXContent
-      };
       "
     `);
   });
@@ -233,7 +212,7 @@ describe("recma-mdx-html-override, output is function-body, jsx is true", () => 
   it("without plugin, only html raw elements, format md, jsx true", async () => {
     const compiledSource = await compile(source, {
       format: "md",
-      outputFormat: "function-body",
+      outputFormat: "program",
       jsx: true,
       rehypePlugins: [rehypeRaw],
     });
@@ -241,7 +220,6 @@ describe("recma-mdx-html-override, output is function-body, jsx is true", () => 
     expect(String(compiledSource)).toMatchInlineSnapshot(`
       "/*@jsxRuntime automatic*/
       /*@jsxImportSource react*/
-      "use strict";
       function _createMdxContent(props) {
         const _components = {
           a: "a",
@@ -250,15 +228,12 @@ describe("recma-mdx-html-override, output is function-body, jsx is true", () => 
           p: "p",
           ...props.components
         }, _component0 = _components["a-b"], _component1 = _components["a-b-c"];
-        return <_components.p><_components.a />{"\\n"}<_component0 />{"\\n"}<_component1 /></_components.p>;
+        return <_components.p><_components.a />{"\\n"}<_component0 />{"\\n"}<_component1 />{"\\n"}<_component0 />{"\\n"}<_component1 /></_components.p>;
       }
-      function MDXContent(props = {}) {
+      export default function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});
         return MDXLayout ? <MDXLayout {...props}><_createMdxContent {...props} /></MDXLayout> : _createMdxContent(props);
       }
-      return {
-        default: MDXContent
-      };
       "
     `);
   });
@@ -267,7 +242,7 @@ describe("recma-mdx-html-override, output is function-body, jsx is true", () => 
   it("with plugin, only html raw elements, format md, jsx true", async () => {
     const compiledSource = await compile(source, {
       format: "md",
-      outputFormat: "function-body",
+      outputFormat: "program",
       jsx: true,
       rehypePlugins: [rehypeRaw],
       recmaPlugins: [
@@ -278,7 +253,6 @@ describe("recma-mdx-html-override, output is function-body, jsx is true", () => 
     expect(String(compiledSource)).toMatchInlineSnapshot(`
       "/*@jsxRuntime automatic*/
       /*@jsxImportSource react*/
-      "use strict";
       function _createMdxContent(props) {
         const _components = {
           a: "a",
@@ -287,15 +261,12 @@ describe("recma-mdx-html-override, output is function-body, jsx is true", () => 
           p: "p",
           ...props.components
         }, _component0 = _components["a-b"], _component1 = _components["a-b-c"];
-        return <_components.p><_components.a />{"\\n"}<_component0 />{"\\n"}<_component1 /></_components.p>;
+        return <_components.p><_components.a />{"\\n"}<_component0 />{"\\n"}<_component1 />{"\\n"}<_component0 />{"\\n"}<_component1 /></_components.p>;
       }
-      function MDXContent(props = {}) {
+      export default function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});
         return MDXLayout ? <MDXLayout {...props}><_createMdxContent {...props} /></MDXLayout> : _createMdxContent(props);
       }
-      return {
-        default: MDXContent
-      };
       "
     `);
   });

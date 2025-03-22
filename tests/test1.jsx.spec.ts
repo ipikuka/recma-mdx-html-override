@@ -529,26 +529,19 @@ describe("recma-mdx-html-override, output is function-body, with plugin, jsx is 
   });
 
   // ******************************************
-  it("with plugin, works with a not valid js identifier since it is compiled as literal", async () => {
+  it("with plugin, works with a not valid js identifier in tag names since it is compiled as literal", async () => {
     const source = dedent`    
       ![](image.png)
 
-      <not-valid-js-identifier-but-valid-jsx />
+      <with-hypen />
     `;
 
     const compiledSource = await compile(source, {
       outputFormat: "function-body",
       jsx: true,
-      recmaPlugins: [
-        [
-          recmaMdxHtmlOverride,
-          { tags: "not-valid-js-identifier-but-valid-jsx" } as HtmlOverrideOptions,
-        ],
-      ],
+      recmaPlugins: [[recmaMdxHtmlOverride, { tags: "with-hypen" } as HtmlOverrideOptions]],
     });
 
-    // TODO: convert <_components.not-valid-js-identifier-but-valid-jsx />
-    // to <_components["not-valid-js-identifier-but-valid-jsx"] />
     expect(String(compiledSource)).toMatchInlineSnapshot(`
       "/*@jsxRuntime automatic*/
       /*@jsxImportSource react*/
@@ -557,10 +550,10 @@ describe("recma-mdx-html-override, output is function-body, with plugin, jsx is 
         const _components = {
           img: "img",
           p: "p",
-          "not-valid-js-identifier-but-valid-jsx": "not-valid-js-identifier-but-valid-jsx",
+          "with-hypen": "with-hypen",
           ...props.components
-        };
-        return <><_components.p><_components.img src="image.png" alt="" /></_components.p>{"\\n"}<_components.not-valid-js-identifier-but-valid-jsx /></>;
+        }, _mdxcomponent0 = _components["with-hypen"];
+        return <><_components.p><_components.img src="image.png" alt="" /></_components.p>{"\\n"}<_mdxcomponent0 /></>;
       }
       function MDXContent(props = {}) {
         const {wrapper: MDXLayout} = props.components || ({});
