@@ -12,7 +12,7 @@
     "prettier": "prettier --write .",
     "lint": "eslint .",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --config ./jest.config.cjs --coverage",
-    "test:file": "NODE_OPTIONS=--experimental-vm-modules jest --config ./jest.config.cjs test1.jsx.spec.ts",
+    "test:file": "NODE_OPTIONS=--experimental-vm-modules jest --config ./jest.config.cjs test.spec.ts",
     "prepack": "npm run build",
     "prepublishOnly": "npm test && npm run format"
   },
@@ -60,6 +60,7 @@
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
     "prettier-2": "npm:prettier@^2.8.8",
+    "rehype-raw": "^7.0.0",
     "rimraf": "^5.0.10",
     "ts-jest": "^29.2.6",
     "type-coverage": "^2.29.7",
