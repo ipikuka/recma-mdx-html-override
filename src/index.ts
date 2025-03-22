@@ -1,6 +1,13 @@
 import type { Plugin } from "unified";
-import type { FunctionDeclaration, Node, Program, Property, VariableDeclarator } from "estree";
-import type { JSXIdentifier, JSXOpeningElement } from "estree-jsx";
+import type {
+  FunctionDeclaration,
+  Node,
+  Program,
+  Property,
+  VariableDeclaration,
+  VariableDeclarator,
+} from "estree";
+import type { JSXOpeningElement } from "estree-jsx";
 import { CONTINUE, EXIT, SKIP, visit } from "estree-util-visit";
 
 export type HtmlOverrideOptions = {
@@ -24,9 +31,12 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
   ) as Required<HtmlOverrideOptions>;
 
   const componentMap: Record<string, string> = {};
+  const extraMap: Record<string, string> = {};
+  let hypenIndex: number = 0;
   let functionNode: FunctionDeclaration | undefined;
   let functionPropsName: string = "props";
   let targetVariableDeclarator: VariableDeclarator;
+  let targetVariableDeclaration: VariableDeclaration;
 
   function containsHyphen(name: string): boolean {
     return name.includes("-");
@@ -116,15 +126,29 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
           (typeof settings.tags === "string" && currentTag === settings.tags) ||
           settings.tags.includes(currentTag)
         ) {
-          node.openingElement.name = {
-            type: "JSXMemberExpression",
-            object: { type: "JSXIdentifier", name: "_components" },
-            property: { type: "JSXIdentifier", name: currentTag },
-            // A proposal in https://github.com/facebook/jsx/issues/163
-            // property: containsHyphen(currentTag)
-            //   ? { type: "Literal", value: currentTag, computed: true }
-            //   : { type: "JSXIdentifier", name: currentTag },
-          };
+          if (containsHyphen(currentTag)) {
+            const newNameMappedToCurrentTag = `_mdxcomponent${hypenIndex}`;
+            hypenIndex++;
+
+            if (!extraMap[currentTag]) {
+              extraMap[currentTag] = newNameMappedToCurrentTag;
+            }
+
+            node.openingElement.name = {
+              type: "JSXIdentifier",
+              name: extraMap[currentTag],
+            };
+          } else {
+            node.openingElement.name = {
+              type: "JSXMemberExpression",
+              object: { type: "JSXIdentifier", name: "_components" },
+              property: { type: "JSXIdentifier", name: currentTag },
+              // A proposal in https://github.com/facebook/jsx/issues/163
+              // property: containsHyphen(currentTag)
+              //   ? { type: "Literal", value: currentTag, computed: true }
+              //   : { type: "JSXIdentifier", name: currentTag },
+            };
+          }
 
           if (!componentMap[currentTag]) {
             componentMap[currentTag] = currentTag;
@@ -138,11 +162,12 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
     if (!Object.keys(componentMap).length) return;
 
     // find "const _components = {}" variable declarator; and add the components inside, if not exist.
-    visit(functionNode, (node) => {
+    visit(functionNode, (node, _, __, parents) => {
       if (node.type !== "VariableDeclarator") return CONTINUE;
 
       if (node.id.type === "Identifier" && node.id.name === "_components") {
         targetVariableDeclarator = node;
+        targetVariableDeclaration = parents[parents.length - 1] as VariableDeclaration;
 
         if (node.init?.type === "ObjectExpression") {
           const properties = node.init.properties;
@@ -182,6 +207,25 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
                     shorthand: false,
                     computed: false,
                   }) as Property,
+              ),
+            );
+          }
+
+          if (Object.entries(extraMap).length) {
+            targetVariableDeclaration.declarations.push(
+              ...Object.entries(extraMap).map(
+                ([key, value]) =>
+                  ({
+                    type: "VariableDeclarator",
+                    id: { type: "Identifier", name: value },
+                    init: {
+                      type: "MemberExpression",
+                      object: { type: "Identifier", name: "_components" },
+                      property: { type: "Literal", value: key },
+                      computed: true,
+                      optional: false,
+                    },
+                  }) as VariableDeclarator,
               ),
             );
           }
@@ -231,93 +275,23 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
             ],
           },
         },
+        ...Object.entries(extraMap).map(
+          ([key, value]) =>
+            ({
+              type: "VariableDeclarator",
+              id: { type: "Identifier", name: value },
+              init: {
+                type: "MemberExpression",
+                object: { type: "Identifier", name: "_components" },
+                property: { type: "Literal", value: key },
+                computed: true,
+                optional: false,
+              },
+            }) as VariableDeclarator,
+        ),
       ],
     });
   };
 };
 
 export default plugin;
-
-const x = {
-  type: "VariableDeclaration",
-  kind: "const",
-  declarations: [
-    {
-      type: "VariableDeclarator",
-      id: { type: "Identifier", name: "_components" },
-      init: {
-        type: "ObjectExpression",
-        properties: [
-          {
-            type: "Property",
-            kind: "init",
-            key: { type: "Identifier", name: "a" },
-            value: { type: "Literal", value: "a" },
-            method: false,
-            shorthand: false,
-            computed: false,
-          },
-          {
-            type: "Property",
-            kind: "init",
-            key: { type: "Literal", value: "a-b" },
-            value: { type: "Literal", value: "a-b" },
-            method: false,
-            shorthand: false,
-            computed: false,
-          },
-          {
-            type: "Property",
-            kind: "init",
-            key: { type: "Literal", value: "a-b-c" },
-            value: { type: "Literal", value: "a-b-c" },
-            method: false,
-            shorthand: false,
-            computed: false,
-          },
-          {
-            type: "Property",
-            kind: "init",
-            key: { type: "Identifier", name: "p" },
-            value: { type: "Literal", value: "p" },
-            method: false,
-            shorthand: false,
-            computed: false,
-          },
-          {
-            type: "SpreadElement",
-            argument: {
-              type: "MemberExpression",
-              object: { type: "Identifier", name: "props" },
-              property: { type: "Identifier", name: "components" },
-              computed: false,
-              optional: false,
-            },
-          },
-        ],
-      },
-    },
-    {
-      type: "VariableDeclarator",
-      id: { type: "Identifier", name: "_component0" },
-      init: {
-        type: "MemberExpression",
-        object: { type: "Identifier", name: "_components" },
-        property: { type: "Literal", value: "a-b" },
-        computed: true,
-        optional: false,
-      },
-    },
-    {
-      type: "VariableDeclarator",
-      id: { type: "Identifier", name: "_component1" },
-      init: {
-        type: "MemberExpression",
-        object: { type: "Identifier", name: "_components" },
-        property: { type: "Literal", value: "a-b-c" },
-        computed: true,
-        optional: false,
-      },
-    },
-  ],
-};
