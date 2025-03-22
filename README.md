@@ -22,6 +22,8 @@ You can find information about valid JSX identifiers (identifiers, `wrapper` and
 
 Basically, **`recma-mdx-html-override`** modifies `Literal` parameters in the `jsx`/`jsxs` call expressions by converting them to **`_components.[literal]`**, ensuring they can be overridden.
 
+If a html raw element is in the content with **markdown format** and the plugin list contain **`rehype-raw`**, then the html raw element is already overridable by default via `MDXComponents`. **`recma-mdx-html-override`** is mostly useful for the content in **MDX format**.
+
 ## Installation
 
 This package is suitable for ESM only. In Node.js (version 18+), install with npm:
