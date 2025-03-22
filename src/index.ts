@@ -74,59 +74,60 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
         }
       }
 
-      // First child of a CallExpression is a Literal or Identifier to a reference
       const firstArgument = node.arguments[0];
 
-      if (
-        firstArgument.type === "Literal" &&
-        typeof firstArgument.value === "string" &&
-        ((typeof settings.tags === "string" && firstArgument.value === settings.tags) ||
-          settings.tags.includes(firstArgument.value))
-      ) {
-        node.arguments[0] = {
-          type: "MemberExpression",
-          object: { type: "Identifier", name: "_components" },
-          property: containsHyphen(firstArgument.value)
-            ? { type: "Literal", value: firstArgument.value }
-            : { type: "Identifier", name: firstArgument.value },
-          computed: containsHyphen(firstArgument.value),
-          optional: false,
-        };
+      // Focus Literals in the first parameter of a CallExpression
+      if (firstArgument.type === "Literal" && typeof firstArgument.value === "string") {
+        const currentTag = firstArgument.value;
 
-        if (!componentMap[firstArgument.value]) {
-          componentMap[firstArgument.value] = firstArgument.value;
+        if (
+          (typeof settings.tags === "string" && currentTag === settings.tags) ||
+          settings.tags.includes(currentTag)
+        ) {
+          node.arguments[0] = {
+            type: "MemberExpression",
+            object: { type: "Identifier", name: "_components" },
+            property: containsHyphen(currentTag)
+              ? { type: "Literal", value: currentTag }
+              : { type: "Identifier", name: currentTag },
+            computed: containsHyphen(currentTag),
+            optional: false,
+          };
+
+          if (!componentMap[currentTag]) {
+            componentMap[currentTag] = currentTag;
+          }
         }
       }
 
       return CONTINUE;
     });
 
-    // trace jsx elements to change <xxx /> to <__components.xxx />
+    // trace JSX elements to change <xxx /> to <__components.xxx />
     visit(functionNode, (node) => {
       if (node.type !== "JSXElement") return CONTINUE;
 
-      // First child of a CallExpression is a Literal or Identifier to a reference
       const openingElement: JSXOpeningElement = node.openingElement;
 
       if (openingElement.name.type === "JSXIdentifier") {
-        const jsxIdentifier: JSXIdentifier = openingElement.name;
+        const currentTag = openingElement.name.name;
 
         if (
-          (typeof settings.tags === "string" && jsxIdentifier.name === settings.tags) ||
-          settings.tags.includes(jsxIdentifier.name)
+          (typeof settings.tags === "string" && currentTag === settings.tags) ||
+          settings.tags.includes(currentTag)
         ) {
           node.openingElement.name = {
             type: "JSXMemberExpression",
             object: { type: "JSXIdentifier", name: "_components" },
-            property: { type: "JSXIdentifier", name: jsxIdentifier.name },
+            property: { type: "JSXIdentifier", name: currentTag },
             // A proposal in https://github.com/facebook/jsx/issues/163
-            // property: containsHyphen(jsxIdentifier.name)
-            //   ? { type: "Literal", value: jsxIdentifier.name, computed: true }
-            //   : { type: "JSXIdentifier", name: jsxIdentifier.name },
+            // property: containsHyphen(currentTag)
+            //   ? { type: "Literal", value: currentTag, computed: true }
+            //   : { type: "JSXIdentifier", name: currentTag },
           };
 
-          if (!componentMap[jsxIdentifier.name]) {
-            componentMap[jsxIdentifier.name] = jsxIdentifier.name;
+          if (!componentMap[currentTag]) {
+            componentMap[currentTag] = currentTag;
           }
         }
       }
@@ -236,3 +237,87 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
 };
 
 export default plugin;
+
+const x = {
+  type: "VariableDeclaration",
+  kind: "const",
+  declarations: [
+    {
+      type: "VariableDeclarator",
+      id: { type: "Identifier", name: "_components" },
+      init: {
+        type: "ObjectExpression",
+        properties: [
+          {
+            type: "Property",
+            kind: "init",
+            key: { type: "Identifier", name: "a" },
+            value: { type: "Literal", value: "a" },
+            method: false,
+            shorthand: false,
+            computed: false,
+          },
+          {
+            type: "Property",
+            kind: "init",
+            key: { type: "Literal", value: "a-b" },
+            value: { type: "Literal", value: "a-b" },
+            method: false,
+            shorthand: false,
+            computed: false,
+          },
+          {
+            type: "Property",
+            kind: "init",
+            key: { type: "Literal", value: "a-b-c" },
+            value: { type: "Literal", value: "a-b-c" },
+            method: false,
+            shorthand: false,
+            computed: false,
+          },
+          {
+            type: "Property",
+            kind: "init",
+            key: { type: "Identifier", name: "p" },
+            value: { type: "Literal", value: "p" },
+            method: false,
+            shorthand: false,
+            computed: false,
+          },
+          {
+            type: "SpreadElement",
+            argument: {
+              type: "MemberExpression",
+              object: { type: "Identifier", name: "props" },
+              property: { type: "Identifier", name: "components" },
+              computed: false,
+              optional: false,
+            },
+          },
+        ],
+      },
+    },
+    {
+      type: "VariableDeclarator",
+      id: { type: "Identifier", name: "_component0" },
+      init: {
+        type: "MemberExpression",
+        object: { type: "Identifier", name: "_components" },
+        property: { type: "Literal", value: "a-b" },
+        computed: true,
+        optional: false,
+      },
+    },
+    {
+      type: "VariableDeclarator",
+      id: { type: "Identifier", name: "_component1" },
+      init: {
+        type: "MemberExpression",
+        object: { type: "Identifier", name: "_components" },
+        property: { type: "Literal", value: "a-b-c" },
+        computed: true,
+        optional: false,
+      },
+    },
+  ],
+};
