@@ -47,13 +47,13 @@
     "url": "https://github.com/ipikuka/recma-mdx-html-override/issues"
   },
   "devDependencies": {
-    "@eslint/js": "^9.20.0",
+    "@eslint/js": "^9.23.0",
     "@mdx-js/mdx": "^3.1.0",
     "@types/dedent": "^0.7.2",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.9",
+    "@types/node": "^22.13.11",
     "dedent": "^1.5.3",
-    "eslint": "^9.21.0",
+    "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.0.2",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-prettier": "^5.2.3",
@@ -65,7 +65,7 @@
     "ts-jest": "^29.2.6",
     "type-coverage": "^2.29.7",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.0",
+    "typescript-eslint": "^8.27.0",
     "unified": "^11.0.5"
   },
   "dependencies": {
