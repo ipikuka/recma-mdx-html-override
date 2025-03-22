@@ -38,13 +38,13 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
   let targetVariableDeclarator: VariableDeclarator;
   let targetVariableDeclaration: VariableDeclaration;
 
-  function containsHyphen(name: string): boolean {
-    return name.includes("-");
-  }
-
   return (tree: Node) => {
     // console.dir(tree, { depth: 16 });
     if (!settings.tags) return;
+
+    function containsHyphen(name: string): boolean {
+      return name.includes("-");
+    }
 
     // finds the function _createMdxContent(){}
     visit(tree, (node, _, index) => {
