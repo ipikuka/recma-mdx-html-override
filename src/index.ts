@@ -32,9 +32,9 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
 
   const componentMap: Record<string, string> = {};
   const extraMap: Record<string, string> = {};
-  let hypenIndex: number = 0;
+  let hypenIndex = 0;
+  let functionPropsName = "props";
   let functionNode: FunctionDeclaration | undefined;
-  let functionPropsName: string = "props";
   let targetVariableDeclarator: VariableDeclarator;
   let targetVariableDeclaration: VariableDeclaration;
 
@@ -46,7 +46,7 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
       return name.includes("-");
     }
 
-    // finds the function _createMdxContent(){}
+    // find the function _createMdxContent(){}
     visit(tree, (node, _, index) => {
       if (index === undefined) return;
 
@@ -70,23 +70,22 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
     /* istanbul ignore next */
     if (!functionNode) return;
 
-    // trace call expressions to change _jsx("xxx", {}) to _jsx(_components.xxx, {})
+    // visit call expressions to change _jsx("xxx", {}) to _jsx(_components.xxx, {})
     visit(functionNode, (node) => {
       if (node.type !== "CallExpression") return CONTINUE;
 
-      if ("name" in node.callee) {
-        if (
-          node.callee.name !== "_jsx" &&
-          node.callee.name !== "_jsxDEV" &&
-          node.callee.name !== "_jsxs"
-        ) {
-          return;
-        }
+      if (
+        "name" in node.callee &&
+        node.callee.name !== "_jsx" &&
+        node.callee.name !== "_jsxDEV" &&
+        node.callee.name !== "_jsxs"
+      ) {
+        return;
       }
 
       const firstArgument = node.arguments[0];
 
-      // Focus Literals in the first parameter of a CallExpression
+      // focus "Literals" in the first parameter of jsx/jsxs
       if (firstArgument.type === "Literal" && typeof firstArgument.value === "string") {
         const currentTag = firstArgument.value;
 
@@ -113,7 +112,7 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
       return CONTINUE;
     });
 
-    // trace JSX elements to change <xxx /> to <__components.xxx />
+    // visit JSX elements to change <xxx /> to <__components.xxx />
     visit(functionNode, (node) => {
       if (node.type !== "JSXElement") return CONTINUE;
 
@@ -175,14 +174,13 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
           const existingComponentMap: Record<string, string> = {};
 
           for (const property of properties) {
-            if (property.type === "Property") {
-              if (
-                property.key.type === "Identifier" &&
-                property.value.type === "Literal" &&
-                typeof property.value.value === "string"
-              ) {
-                existingComponentMap[property.key.name] = property.value.value;
-              }
+            if (
+              property.type === "Property" &&
+              property.key.type === "Identifier" &&
+              property.value.type === "Literal" &&
+              typeof property.value.value === "string"
+            ) {
+              existingComponentMap[property.key.name] = property.value.value;
             }
           }
 
@@ -237,7 +235,7 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
 
     if (targetVariableDeclarator) return;
 
-    // There is no "_components" declarator; so we will add VariableDeclaration ourself
+    // there is no "_components" declarator; so we will add VariableDeclaration ourself
     functionNode.body.body.unshift({
       type: "VariableDeclaration",
       kind: "const",
