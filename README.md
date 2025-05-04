@@ -103,6 +103,8 @@ export type HtmlOverrideOptions = {
 
 It is a **`string | string[]`** option to specify which HTML elements should be made overridable in MDX.
 
+Altough it is optional, the plugin will be effectless if you don't provide the option. `recma-mdx-html-override` makes only the tags defined via `tags` option overridable.
+
 ```javascript
 use(recmaMdxHtmlOverride, {tags: "video"} as HtmlOverrideOptions);
 ```
