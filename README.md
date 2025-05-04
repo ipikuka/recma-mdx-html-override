@@ -16,13 +16,11 @@ This package is a **[unified][unified]** (**[recma][recma]**) plugin **that allo
 
 **Use this plugin when you need to override specific raw HTML elements in MDX using `MDXComponents`**.
 
-You can find information about valid JSX identifiers (identifiers, `wrapper` and html tags) that can be passed into MDXComponents and whether they are `Literals` or a `References to an Identifier` in [@mdx-js/mdx documentation](https://mdxjs.com/docs/using-mdx/#components).
+In MDX, it's easy to override elements created with Markdown syntax—like `![alt](image.png)` for images or `## Heading` for headings. However, elements written using raw HTML, such as `<img src="image.png" alt="alt">` or `<h2>Heading</h2>`, cannot be overridden in the same way. **`recma-mdx-html-override`** bridges this gap, making it possible to override raw HTML elements just like their Markdown counterparts.
 
-**`recma-mdx-html-override`** focuses on `Literal` ones (those starting with lowercase letters or/and contains hypen) to make them overridable via MDXComponents.
+**`recma-mdx-html-override`** visits the ESAST elements and focuses on `Literal`s (those starting with lowercase letters or/and contains hypen) in ESAST to make them overridable via MDXComponents. Basically, **`recma-mdx-html-override`** modifies `Literal` parameters in the `jsx`/`jsxs` call expressions by converting them to **`_components.[literal]`**, ensuring they can be overridden. You can find information about valid JSX identifiers (identifiers, `wrapper` and html tags) that can be passed into MDXComponents and whether they are `Literals` or a `References to an Identifier` in [@mdx-js/mdx documentation](https://mdxjs.com/docs/using-mdx/#components).
 
-Basically, **`recma-mdx-html-override`** modifies `Literal` parameters in the `jsx`/`jsxs` call expressions by converting them to **`_components.[literal]`**, ensuring they can be overridden.
-
-If a html raw element is in the content with **markdown format** and the plugin list contain **`rehype-raw`**, then the html raw element is already overridable by default via `MDXComponents`. **`recma-mdx-html-override`** is mostly useful for the content in **MDX format**.
+If a html raw element is in the content with **markdown ("md") format** and if the plugin pipeline contains **`rehype-raw`**, then the html raw element is already overridable by default via `MDXComponents`. **`recma-mdx-html-override`** is mostly useful for the content in **MDX ("mdx") format**.
 
 ## Installation
 
