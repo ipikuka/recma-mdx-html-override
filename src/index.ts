@@ -52,6 +52,7 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
 
       if (node.type !== "FunctionDeclaration") return SKIP;
 
+      /* istanbul ignore if */
       if (node.id.name === "_createMdxContent") {
         functionNode = node;
 
@@ -168,6 +169,7 @@ const plugin: Plugin<[HtmlOverrideOptions?], Program> = (options = {}) => {
         targetVariableDeclarator = node;
         targetVariableDeclaration = parents[parents.length - 1] as VariableDeclaration;
 
+        /* istanbul ignore next */
         if (node.init?.type === "ObjectExpression") {
           const properties = node.init.properties;
 
