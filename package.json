@@ -1,6 +1,6 @@
 {
   "name": "recma-mdx-html-override",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Recma plugin to allow selected raw HTML elements to be overridden via MDX components.",
   "type": "module",
   "exports": "./dist/esm/index.js",
