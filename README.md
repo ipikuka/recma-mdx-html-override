@@ -14,9 +14,9 @@ This package is a **[unified][unified]** (**[recma][recma]**) plugin **that allo
 
 ## When should I use this?
 
-**Use this plugin when you need to override specific raw HTML elements in MDX using `MDXComponents`**.
+Use **`recma-mdx-html-override`** when you need **to override specific raw HTML elements in MDX using `MDXComponents`**.
 
-In MDX, it's easy to override elements created with Markdown syntax—like `![alt](image.png)` for images or `## Heading` for headings. However, elements written using raw HTML, such as `<img src="image.png" alt="alt">` or `<h2>Heading</h2>`, cannot be overridden in the same way. **`recma-mdx-html-override`** bridges this gap, making it possible to override raw HTML elements just like their Markdown counterparts.
+It's easy to override elements created with Markdown syntax—like `![alt](image.png)` for images or `## Heading` for headings in MDX. However, elements written with raw HTML, such as `<img src="image.png" alt="alt">` or `<h2>Heading</h2>`, cannot be overridden in the same way. **`recma-mdx-html-override`** bridges this gap, making it possible to override raw HTML elements just like their Markdown counterparts.
 
 **`recma-mdx-html-override`** visits the ESAST elements and focuses on `Literal`s (those starting with lowercase letters or/and contains hypen) in ESAST to make them overridable via MDXComponents. Basically, **`recma-mdx-html-override`** modifies `Literal` parameters in the `jsx`/`jsxs` call expressions by converting them to **`_components.[literal]`**, ensuring they can be overridden. You can find information about valid JSX identifiers (identifiers, `wrapper` and html tags) that can be passed into MDXComponents and whether they are `Literals` or a `References to an Identifier` in [@mdx-js/mdx documentation](https://mdxjs.com/docs/using-mdx/#components).
 
@@ -103,7 +103,7 @@ export type HtmlOverrideOptions = {
 
 It is a **`string | string[]`** option to specify which HTML elements should be made overridable in MDX.
 
-Altough it is optional, the plugin will be effectless if you don't provide the option. `recma-mdx-html-override` makes only the tags defined via `tags` option overridable.
+Altough it is optional, the plugin will be effectless if you don't provide the option. **`recma-mdx-html-override`** makes only the tags defined via `tags` option overridable.
 
 ```javascript
 use(recmaMdxHtmlOverride, {tags: "video"} as HtmlOverrideOptions);
@@ -125,7 +125,7 @@ This plugin works with `unified` version 6+. It is compatible with `mdx` version
 
 ## Security
 
-Use of `recma-mdx-html-override` does not involve user content so there are no openings for cross-site scripting (XSS) attacks.
+Use of **`recma-mdx-html-override`** does not involve user content so there are no openings for cross-site scripting (XSS) attacks.
 
 ## My Plugins
 
